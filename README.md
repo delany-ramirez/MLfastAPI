@@ -23,8 +23,8 @@ Las librerías Python están listadas en `requirements.txt`.
 
 ```bash
 # 1. Clona el repo
-git clone https://github.com/tu-usuario/iris-fastapi-streamlit.git
-cd iris-fastapi-streamlit
+git clone https://github.com/delany-ramirez/MLfastAPI.git
+cd MLfastAPI
 
 # 2. Crea y activa un entorno virtual
 python -m venv .venv
