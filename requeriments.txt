@@ -1,0 +1,14 @@
+# ─── Backend (API) ──────────────────────────────────────────────────────────────
+fastapi>=0.111
+uvicorn[standard]>=0.29
+pydantic>=2.7
+
+# ─── Machine-Learning model ────────────────────────────────────────────────────
+scikit-learn>=1.4   # trae NumPy y SciPy como dependencias
+joblib>=1.4
+
+# ─── Frontend (Streamlit) ──────────────────────────────────────────────────────
+streamlit>=1.35
+requests>=2.32      # cliente HTTP que usa el script de Streamlit
+
+# ---- pip install --upgrade -r requirements.txt
