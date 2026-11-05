@@ -7,15 +7,15 @@ FastAPI version that exposes two **GET** routes:
 
 from fastapi import FastAPI, HTTPException, Query
 import numpy as np
-import joblib
 
-MODEL_FILE = "iris_logreg.joblib"
+from model_registry import load_model
+
 TARGET_NAMES = ["setosa", "versicolor", "virginica"]
 
 # --------------------------------------------------------------------------- #
 # 1. Load model at startup                                                    #
 # --------------------------------------------------------------------------- #
-model = joblib.load(MODEL_FILE)
+model = load_model()
 
 # --------------------------------------------------------------------------- #
 # 2. FastAPI app                                                              #
@@ -29,7 +29,7 @@ def predict_csv(
         ...,
         description="Four comma-separated numbers: "
                     "sepal_len,sepal_wid,petal_len,petal_wid",
-        examples={"setosa": {"value": "5.1,3.5,1.4,0.2"}}
+        examples=["5.1,3.5,1.4,0.2"]
     )
 ):
     try:

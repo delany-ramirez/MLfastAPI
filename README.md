@@ -5,6 +5,7 @@ Proyecto de demostración para cursos de Machine Learning y despliegue rápido d
 * 🛠️ **Back-end** · FastAPI expone el modelo entrenado mediante dos rutas (`POST` y `GET`).
 * 🖥️ **Front-end** · Streamlit llama a la API y muestra la predicción en una interfaz web.
 * 📦 **ML** · Modelo de regresión logística entrenado con *scikit-learn* sobre el dataset Iris.
+* 📈 **MLOps** · MLflow registra cada entrenamiento y versiona el modelo que sirve la API.
 
 ---
 
@@ -12,10 +13,11 @@ Proyecto de demostración para cursos de Machine Learning y despliegue rápido d
 
 | Herramienta | Versión mínima |
 |-------------|----------------|
-| Python      | 3.9 o superior |
+| Python      | 3.12 o superior |
+| uv          | 0.8            |
 | Git         | 2.25           |
 
-Las librerías Python están listadas en `requirements.txt`.
+Las librerías Python están definidas en `pyproject.toml` y fijadas en `uv.lock`.
 
 ---
 
@@ -26,50 +28,53 @@ Las librerías Python están listadas en `requirements.txt`.
 git clone https://github.com/delany-ramirez/MLfastAPI.git
 cd MLfastAPI
 
-# 2. Crea y activa un entorno virtual
-python -m venv .venv
-# Linux / macOS
-source .venv/bin/activate
-# Windows (cmd)
-.\.venv\Scriptsctivate
-
-# 3. Instala las dependencias
-pip install --upgrade pip
-pip install -r requirements.txt
+# 2. Crea el entorno virtual e instala las dependencias
+uv sync
 ```
 
 ---
 
-## 3 · Entrena el modelo (una sola vez)
+## 3 · Entrena el modelo
 
 ```bash
-python train_model.py
-# → crea iris_logreg.joblib
+uv run train_model.py
+# → registra una nueva versión de iris-logreg en MLflow (alias: champion)
 ```
+
+Para revisar los experimentos y las versiones del modelo:
+
+```bash
+uv run mlflow ui
+# Abrirá http://127.0.0.1:5000
+```
+
+Por defecto, MLflow guarda los datos en `mlflow.db` y `mlruns/`, dentro de la carpeta del proyecto. Ejecuta los comandos desde esa carpeta o define `MLFLOW_TRACKING_URI` para usar otro servidor.
+
+La API carga el modelo al arrancar: si vuelves a entrenar, reiníciala para servir la nueva versión.
 
 ---
 
 ## 4 · Ejecuta la API FastAPI
 
 ```bash
-uvicorn app_post:app --reload
+uv run uvicorn app_post:app --reload
 # Documentación interactiva en http://127.0.0.1:8000/docs
 ```
 
 > **Rutas disponibles**
 >
-> * `POST /predict`   (body JSON)  
-> * `GET  /predict`   ?data=5.1,3.5,1.4,0.2  
-> * `GET  /predict_explicit`   ?sepal_len=…&sepal_wid=…&petal_len=…&petal_wid=…
+> * `app_post`: `POST /predict`   (body JSON)  
+> * `app_get`: `GET  /predict`   ?data=5.1,3.5,1.4,0.2  
+> * `app_get`: `GET  /predict_explicit`   ?sepal_len=…&sepal_wid=…&petal_len=…&petal_wid=…
 
 ---
 
 ## 5 · Ejecuta la interfaz Streamlit
 
-En otra terminal (con el mismo entorno virtual activo):
+En otra terminal:
 
 ```bash
-streamlit run iris_streamlit.py
+uv run streamlit run streamlit_iris.py
 # Abrirá http://localhost:8501
 ```
 
@@ -78,7 +83,7 @@ streamlit run iris_streamlit.py
 ## 6 · Pruebas rápidas con cURL
 
 ```bash
-curl -X POST http://127.0.0.1:8000/predict      -H "accept: application/json"      -H "Content-Type: application/json"      -d "{"data":[5.1,3.5,1.4,0.2]}"
+curl -X POST http://127.0.0.1:8000/predict      -H "accept: application/json"      -H "Content-Type: application/json"      -d '{"data":[5.1,3.5,1.4,0.2]}'
 ```
 
 ---
@@ -89,10 +94,12 @@ curl -X POST http://127.0.0.1:8000/predict      -H "accept: application/json"   
 .
 ├─ app_get.py            # API versión GET
 ├─ app_post.py           # API versión POST
-├─ iris_streamlit.py     # Front-end Streamlit
-├─ train_model.py        # Entrenamiento y serialización del modelo
-├─ iris_logreg.joblib    # Modelo entrenado (generado)
-├─ requirements.txt
+├─ streamlit_iris.py     # Front-end Streamlit
+├─ train_model.py        # Entrenamiento y registro del modelo en MLflow
+├─ model_registry.py     # Carga del modelo desde el registro de MLflow
+├─ mlflow.db, mlruns/    # Datos de MLflow (generados)
+├─ pyproject.toml
+├─ uv.lock
 └─ README.md
 ```
 

@@ -1,35 +1,21 @@
 # app.py
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, conlist
-import joblib
-import numpy as np
-
-from pydantic import BaseModel, Field
 from typing import List
 
+from fastapi import FastAPI, HTTPException
+import numpy as np
+from pydantic import BaseModel, Field
 
+from model_registry import load_model
 
-
-MODEL_FILE = "iris_logreg.joblib"
 
 # -----------------------------------------------------------------------------#
 # 1. Load model at start-up (only once)                                        #
 # -----------------------------------------------------------------------------#
-try:
-    model = joblib.load(MODEL_FILE)
-except FileNotFoundError as exc:
-    raise RuntimeError(
-        f"Model file {MODEL_FILE} not found. "
-        "Did you run `python train_model.py` first?"
-    ) from exc
+model = load_model()
 
 # -----------------------------------------------------------------------------#
 # 2. Define request/response schemas                                           #
 # -----------------------------------------------------------------------------#
-# class IrisFeatures(BaseModel):
-#     """Exactly 4 numeric features in the same order as the iris dataset."""
-#     data: conlist(float, min_items=4, max_items=4)
-
 class IrisFeatures(BaseModel):
     data: List[float] = Field(..., min_length=4, max_length=4)
 
